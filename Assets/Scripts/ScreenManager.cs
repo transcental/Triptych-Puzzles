@@ -2,13 +2,16 @@ using UnityEngine;
 
 public class ScreenManager : MonoBehaviour
 {
+    [Header("Players")]
+    [SerializeField] private PlayerController[] players;
+    public PlayerController[] Players {
+        get => players;
+    }
+    
+    
     void Start()
     {
-        Debug.Log($"Displays connected: {Display.displays.Length}");
-        for (int i = 1; i < Display.displays.Length; i++)
-        {
-            Display.displays[i].Activate();
-        }
+        
     }
 
     void Update()
