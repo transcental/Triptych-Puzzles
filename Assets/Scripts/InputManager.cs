@@ -52,7 +52,10 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
             var origin = player.transform.position;
             var raycastDir = new Vector3(direction.x, 0, direction.y);
             // distance should be the distance the player moves in one frame
-            var hit = Physics.Raycast(origin, raycastDir, moveSpeed);
+            var radius = 0.5f;
+            var point1 = origin + new Vector3(0, radius, 0);
+            var point2 = origin + new Vector3(0, -radius, 0);
+            var hit = Physics.CapsuleCast(point1, point2, radius, raycastDir, moveSpeed);
             if (hit)
             {
                 collided = true;
