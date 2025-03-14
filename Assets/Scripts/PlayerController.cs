@@ -21,5 +21,9 @@ public class PlayerController : MonoBehaviour
         playerCamera.targetDisplay = displayIndex - 1;
 
         playerCamera.transform.position = lookAt.transform.position;
+        playerCamera.transform.rotation = lookAt.transform.rotation;
+        var playerPos = lookAt.transform.parent.transform;
+        // set the camera to face the player
+        playerCamera.transform.LookAt(playerPos);
     }
 }
