@@ -54,7 +54,6 @@ public class GravityController : MonoBehaviour
         }
         if (highestGrounded)
         {
-            Debug.Log("HIGHEST GROUNDED FOUND");
             foreach (var player in players)
             {
                 player.transform.position = new Vector3(player.transform.position.x, highest, player.transform.position.z);

@@ -9,8 +9,19 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
     [SerializeField] private float moveSpeed = 0.1f;
     
     private Vector2 MoveComposite;
-    public Action OnJumpPerformed;
     private Controls controls;
+    private List<GameObject> players;
+    
+    void Start()
+    {
+        var playerControllers = screenManager.Players;
+        players = new List<GameObject>();
+        foreach (var playerController in playerControllers)
+        {
+            var parent = playerController.gameObject;
+            players.Add(parent);
+        }
+    }
     
     private void OnEnable()
     {
@@ -30,22 +41,10 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
     void FixedUpdate()
     {
         Move(MoveComposite);
-
     }
 
     private void Move(Vector2 direction)
     {
-        var playerControllers = screenManager.Players;
-        // playerControllers is an array of PlayerController objects, get the parent GameObjects
-        var players = new List<GameObject>();
-        foreach (var playerController in playerControllers)
-        {
-            var parent = playerController.gameObject;
-            players.Add(parent);
-        }
-        
-        // For each player in players, raycast to make sure they won't collide before moving. if any collide, none can move. If none collide, they all move.
-        
         var collided = false;
         foreach (var player in players)
         {
@@ -67,6 +66,37 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
         foreach (var player in players)
         {
             player.transform.Translate(new Vector3(direction.x * 0.1f, 0, direction.y * 0.1f));
+        }
+    }
+    
+    private void Jump(int jumpHeight)
+    {
+        var collided = false;
+        foreach (var player in players)
+        {
+            var origin = player.transform.position;
+            var raycastDir = new Vector3(0, -1, 0);
+            var radius = 0.5f;
+            var point1 = origin + new Vector3(0, radius, 0);
+            var point2 = origin + new Vector3(0, -radius, 0);
+            RaycastHit hit;
+            if (Physics.CapsuleCast(point1, point2, radius, raycastDir, out hit, 0.05f))
+            {
+                collided = true;
+                break;
+            }
+            else
+            {
+                collided = false;
+            }
+        }
+        
+        if (!collided)
+            return;
+
+        foreach (var player in players)
+        {
+            player.transform.Translate(new Vector3(0, jumpHeight, 0));
         }
     }
 
@@ -98,7 +128,8 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
         if (!context.performed)
             return;
 
-        OnJumpPerformed?.Invoke();
+        var jumpHeight = 1;
+        Jump(jumpHeight);
     }
     
     public void OnNext(InputAction.CallbackContext context)
