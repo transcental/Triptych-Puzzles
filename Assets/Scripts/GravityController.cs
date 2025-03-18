@@ -28,9 +28,9 @@ public class GravityController : MonoBehaviour
             var point1 = origin + new Vector3(0, radius, 0);
             var point2 = origin + new Vector3(0, -radius, 0);
             RaycastHit hit;
-            if (Physics.CapsuleCast(point1, point2, radius, raycastDir, out hit, 1))
+            if (Physics.CapsuleCast(point1, point2, radius, raycastDir, out hit, 0.05f))
             {
-                heights.Add(hit.distance);
+                heights.Add(origin.y);
                 grounded.Add(true);
             }
             else
@@ -54,15 +54,15 @@ public class GravityController : MonoBehaviour
         }
         if (highestGrounded)
         {
+            Debug.Log("HIGHEST GROUNDED FOUND");
             foreach (var player in players)
             {
                 player.transform.position = new Vector3(player.transform.position.x, highest, player.transform.position.z);
             }
-        } else
-        {
+        } else {
             foreach (var player in players)
             {
-                player.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - 0.1f, player.transform.position.z);
+                player.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - 0.05f, player.transform.position.z);
             }
         }
     }
