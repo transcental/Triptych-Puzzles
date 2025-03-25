@@ -8,6 +8,7 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
     [SerializeField] private ScreenManager screenManager;
     [SerializeField] private GravityController gravityController;
     [SerializeField] private float moveSpeed = 0.1f;
+    [SerializeField] private float interactionRadius = 0.5f;
 
     private Vector2 MoveComposite;
     private Controls controls;
@@ -89,8 +90,42 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
     
     public void OnInteract(InputAction.CallbackContext context)
     {
-        Debug.Log("interact");
-        throw new NotImplementedException();
+        if (!context.performed)
+        {
+            return;
+        }
+        foreach (var player in players)
+        {
+            // get object in front of player
+            RaycastHit hit;
+            var pos1 = player.transform.position + new Vector3(0, 0.5f, 0);
+            var pos2 = player.transform.position + new Vector3(0, -0.5f, 0);
+            var radius = 0.5f;
+            float distanceToObstacle = 0;
+            
+            GameObject obj = null;
+            if (Physics.CapsuleCast(pos1, pos2, radius, transform.forward, out hit, interactionRadius))
+            {
+                distanceToObstacle = hit.distance;
+                obj = hit.collider.gameObject;
+            }
+            
+            if (obj == null)
+                return;
+            if (distanceToObstacle > interactionRadius)
+                return;
+
+            MonoBehaviour[] allScripts = obj.GetComponents<MonoBehaviour>();
+            for (int i = 0; i < allScripts.Length; i++)
+            {
+                if (allScripts[i] is IInteractable)
+                {
+                    var interactable = allScripts[i] as IInteractable;
+                    interactable.Interact(player);
+                    return;
+                }
+            }
+        }
     }
     
     public void OnJump(InputAction.CallbackContext context)
