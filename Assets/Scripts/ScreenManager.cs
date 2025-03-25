@@ -7,15 +7,4 @@ public class ScreenManager : MonoBehaviour
     public PlayerController[] Players {
         get => players;
     }
-    
-    
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
 }

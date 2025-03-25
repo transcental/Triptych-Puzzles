@@ -1,0 +1,160 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public class GravityController : MonoBehaviour
+{
+    [SerializeField] private ScreenManager screenManager;
+    private List<GameObject> players;
+    public bool jumping = false;
+
+    [SerializeField] private float jumpForce = 5;
+    private float velocity;
+
+    void Start()
+    {
+        var playerControllers = screenManager.Players;
+        players = new List<GameObject>();
+        foreach (var playerController in playerControllers)
+        {
+            var parent = playerController.gameObject;
+            players.Add(parent);
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (jumping)
+        {
+            ApplyJumping();
+            return;
+        }
+    
+        List<float> heights = new List<float>();
+        List<bool> grounded = new List<bool>();
+    
+        foreach (var player in players)
+        {
+            bool isGrounded = CheckGrounded(player, out float height);
+            heights.Add(height);
+            grounded.Add(isGrounded);
+        }
+    
+        float highest = Mathf.Max(heights.ToArray());
+        int highestIndex = heights.IndexOf(highest);
+        bool highestGrounded = grounded[highestIndex];
+    
+        if (!highestGrounded && grounded.Contains(true))
+        {
+            highestGrounded = FindHighestGrounded(heights, grounded, highest, out highest);
+        }
+    
+        UpdatePlayerPositions(highest, highestGrounded);
+    }
+    
+    void ApplyJumping()
+    {
+        foreach (var player in players)
+        {
+            player.transform.Translate(new Vector3(0, velocity, 0) * Time.deltaTime);
+        }
+        velocity -= 9.8f * Time.deltaTime;
+        if (velocity < 0)
+        {
+            jumping = false;
+        }
+    }
+    
+    bool CheckGrounded(GameObject player, out float height)
+    {
+        Vector3 origin = player.transform.position;
+        Vector3 raycastDir = Vector3.down;
+        float radius = 0.5f;
+        Vector3 point1 = origin + new Vector3(0, radius, 0);
+        Vector3 point2 = origin + new Vector3(0, -radius, 0);
+        RaycastHit hit;
+    
+        if (Physics.CapsuleCast(point1, point2, radius, raycastDir, out hit, 0.05f))
+        {
+            height = origin.y;
+            return true;
+        }
+        else
+        {
+            height = 0;
+            return false;
+        }
+    }
+    
+    bool FindHighestGrounded(List<float> heights, List<bool> grounded, float currentHighest, out float newHighest)
+    {
+        newHighest = currentHighest;
+        while (true)
+        {
+            float tempHighest = float.MinValue;
+            foreach (var height in heights)
+            {
+                if (height != newHighest && height > tempHighest)
+                {
+                    tempHighest = height;
+                }
+            }
+    
+            if (tempHighest == float.MinValue)
+            {
+                return false;
+            }
+    
+            newHighest = tempHighest;
+            int highestIndex = heights.IndexOf(newHighest);
+            if (grounded[highestIndex])
+            {
+                return true;
+            }
+        }
+    }
+    
+    void UpdatePlayerPositions(float highest, bool highestGrounded)
+    {
+        foreach (var player in players)
+        {
+            if (highestGrounded)
+            {
+                player.transform.position = new Vector3(player.transform.position.x, highest, player.transform.position.z);
+            }
+            else
+            {
+                player.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - 9.8f * Time.deltaTime, player.transform.position.z);
+            }
+        }
+    }
+
+    public void Jump()
+    {
+        if (jumping)
+            return;
+        var collided = false;
+        foreach (var player in players)
+        {
+            var origin = player.transform.position;
+            var raycastDir = new Vector3(0, -1, 0);
+            var radius = 0.5f;
+            var point1 = origin + new Vector3(0, radius, 0);
+            var point2 = origin + new Vector3(0, -radius, 0);
+            RaycastHit hit;
+            if (Physics.CapsuleCast(point1, point2, radius, raycastDir, out hit, 0.05f))
+            {
+                collided = true;
+                break;
+            }
+            else
+            {
+                collided = false;
+            }
+        }
+        
+        if (!collided)
+            return;
+        jumping = true;
+        velocity = jumpForce;
+    }
+}

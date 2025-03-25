@@ -5,6 +5,11 @@ public class GravityController : MonoBehaviour
 {
     [SerializeField] private ScreenManager screenManager;
     private List<GameObject> players;
+    public bool jumping = false;
+
+    [SerializeField] private float jumpForce = 7;
+    private float velocity;
+
     void Start()
     {
         var playerControllers = screenManager.Players;
@@ -18,6 +23,18 @@ public class GravityController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (jumping) {
+            foreach (var player in players)
+            {
+                player.transform.Translate(new Vector3(0, velocity, 0) * Time.deltaTime);
+            }
+            velocity -= 9.8f * Time.deltaTime;
+            if (velocity < 0)
+            {
+                jumping = false;
+            }
+            return;
+        }
         var heights = new List<float>();
         var grounded = new List<bool>();
         foreach (var player in players)
@@ -64,5 +81,35 @@ public class GravityController : MonoBehaviour
                 player.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - 0.05f, player.transform.position.z);
             }
         }
+    }
+
+    public void Jump()
+    {
+        if (jumping)
+            return;
+        var collided = false;
+        foreach (var player in players)
+        {
+            var origin = player.transform.position;
+            var raycastDir = new Vector3(0, -1, 0);
+            var radius = 0.5f;
+            var point1 = origin + new Vector3(0, radius, 0);
+            var point2 = origin + new Vector3(0, -radius, 0);
+            RaycastHit hit;
+            if (Physics.CapsuleCast(point1, point2, radius, raycastDir, out hit, 0.05f))
+            {
+                collided = true;
+                break;
+            }
+            else
+            {
+                collided = false;
+            }
+        }
+        
+        if (!collided)
+            return;
+        jumping = true;
+        velocity = jumpForce;
     }
 }

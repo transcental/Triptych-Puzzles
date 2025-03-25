@@ -6,8 +6,9 @@ using UnityEngine.InputSystem;
 public class InputManager : MonoBehaviour, Controls.IPlayerActions
 {
     [SerializeField] private ScreenManager screenManager;
+    [SerializeField] private GravityController gravityController;
     [SerializeField] private float moveSpeed = 0.1f;
-    
+
     private Vector2 MoveComposite;
     private Controls controls;
     private List<GameObject> players;
@@ -68,37 +69,6 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
             player.transform.Translate(new Vector3(direction.x * 0.1f, 0, direction.y * 0.1f));
         }
     }
-    
-    private void Jump(int jumpHeight)
-    {
-        var collided = false;
-        foreach (var player in players)
-        {
-            var origin = player.transform.position;
-            var raycastDir = new Vector3(0, -1, 0);
-            var radius = 0.5f;
-            var point1 = origin + new Vector3(0, radius, 0);
-            var point2 = origin + new Vector3(0, -radius, 0);
-            RaycastHit hit;
-            if (Physics.CapsuleCast(point1, point2, radius, raycastDir, out hit, 0.05f))
-            {
-                collided = true;
-                break;
-            }
-            else
-            {
-                collided = false;
-            }
-        }
-        
-        if (!collided)
-            return;
-
-        foreach (var player in players)
-        {
-            player.transform.Translate(new Vector3(0, jumpHeight, 0));
-        }
-    }
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -128,8 +98,7 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
         if (!context.performed)
             return;
 
-        var jumpHeight = 1;
-        Jump(jumpHeight);
+        gravityController.Jump();
     }
     
     public void OnNext(InputAction.CallbackContext context)
