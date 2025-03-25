@@ -5,6 +5,7 @@ public class PickupCube : MonoBehaviour, IHoldInteractable
     private bool isHeld = false;
     private GameObject holder;
     [SerializeField] private InventoryManager inventoryManager;
+    [SerializeField] private Rigidbody rb;
     private Vector3 startingScale;
     
     public bool IsHeld => isHeld;
@@ -15,10 +16,11 @@ public class PickupCube : MonoBehaviour, IHoldInteractable
         startingScale = transform.localScale;
     }
 
-    public void Update()
+    void FixedUpdate()
     {
         if (isHeld)
         {
+            // transform.Translate
             transform.position = holder.transform.position + new Vector3(0, 0, 1);
         }
     }
@@ -37,11 +39,12 @@ public class PickupCube : MonoBehaviour, IHoldInteractable
     
     public void PickUp(GameObject owner)
     {
+        rb.useGravity = false;
+        transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        transform.position = owner.transform.position + new Vector3(0, 0, 1);
+        
         isHeld = true;
         holder = owner;
-        
-        transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-        transform.position = holder.transform.position + new Vector3(0, 0, 1);
     }
     
     public void Drop()
@@ -50,5 +53,6 @@ public class PickupCube : MonoBehaviour, IHoldInteractable
         holder = null;
         transform.localScale = startingScale;
         transform.position = transform.position + new Vector3(0, 0, 1);
+        rb.useGravity = true;
     }
 }

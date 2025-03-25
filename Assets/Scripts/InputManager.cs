@@ -87,7 +87,7 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
         Debug.Log("crouch");
         throw new NotImplementedException();
     }
-    
+
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (!context.performed)
@@ -111,9 +111,9 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
             }
             
             if (obj == null)
-                return;
+                continue;
             if (distanceToObstacle > interactionRadius)
-                return;
+                continue;
 
             MonoBehaviour[] allScripts = obj.GetComponents<MonoBehaviour>();
             for (int i = 0; i < allScripts.Length; i++)
@@ -122,7 +122,7 @@ public class InputManager : MonoBehaviour, Controls.IPlayerActions
                 {
                     var interactable = allScripts[i] as IInteractable;
                     interactable.Interact(player);
-                    return;
+                    continue;
                 }
             }
         }
