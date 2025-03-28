@@ -8,6 +8,7 @@ public class GravityController : MonoBehaviour
     public bool jumping = false;
 
     [SerializeField] private float jumpForce = 7;
+    private Dictionary<GameObject, float> startingHeights = new Dictionary<GameObject, float>();
     private float velocity;
 
     void Start()
@@ -18,6 +19,7 @@ public class GravityController : MonoBehaviour
         {
             var parent = playerController.gameObject;
             players.Add(parent);
+            startingHeights.Add(parent, parent.transform.position.y);
         }
     }
 
@@ -47,7 +49,7 @@ public class GravityController : MonoBehaviour
             RaycastHit hit;
             if (Physics.CapsuleCast(point1, point2, radius, raycastDir, out hit, 0.05f))
             {
-                heights.Add(origin.y);
+                heights.Add(origin.y - startingHeights[player]);
                 grounded.Add(true);
             }
             else
@@ -73,7 +75,8 @@ public class GravityController : MonoBehaviour
         {
             foreach (var player in players)
             {
-                player.transform.position = new Vector3(player.transform.position.x, highest, player.transform.position.z);
+                var startingHeight = startingHeights[player];
+                player.transform.position = new Vector3(player.transform.position.x, startingHeight + highest, player.transform.position.z);
             }
         } else {
             foreach (var player in players)
