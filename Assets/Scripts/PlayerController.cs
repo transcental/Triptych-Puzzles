@@ -12,8 +12,10 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         var displays = Display.displays.Length;
-        if (displays > displayIndex && !Display.displays[displayIndex].active && displayIndex > 0)
+        Debug.Log(displays);
+        if (displays >= displayIndex && !Display.displays[displayIndex - 1].active && displayIndex > 0)
         {
+            Debug.Log($"Display {displayIndex} activated");
             Display.displays[displayIndex - 1].Activate();
             Debug.Log($"Activated {gameObject.name} on display {displayIndex - 1}");
         }
