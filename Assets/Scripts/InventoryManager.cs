@@ -29,7 +29,6 @@ public class InventoryManager : MonoBehaviour
         }
         if (inventories[player] != null)
         {
-            Debug.LogError("Player already has an item");
             var oldItem = inventories[player];
             Drop(oldItem);
             inventories[player] = null;
